@@ -159,7 +159,7 @@
     <input type="file" class="file-input" id="fileInput" accept="image/*" capture="environment">
     <button class="upload-btn" id="uploadBtn" style="background: #22c55e; display:none;"><b>Upload & Go</b></button>
     <div class="loading-msg" id="loadingMsg">Uploading...</div>
-    <div class="note">Recommended: Landscape, clear, <b>under 3MB</b></div>
+    <div class="note">Recommended: Landscape, clear, <b>under 10MB</b></div>
   </div>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -232,8 +232,8 @@
 
     uploadBtn.onclick = () => {
       if (!selectedFile) return;
-      if (selectedFile.size > 3 * 1024 * 1024) { // 3MB
-        alert("File size must be under 3MB!");
+      if (selectedFile.size > 10 * 1024 * 1024) { // 3MB
+        alert("File size must be under 10MB!");
         return;
       }
       loadingMsg.textContent = "Uploading...";
