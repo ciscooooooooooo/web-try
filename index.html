@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Advertisement Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #181c25;
+      color: #fff;
+      font-family: 'Montserrat', system-ui, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-size: 1.07rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .container {
+      width: 98vw;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 22px 12px 0 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #222733;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 3px 32px #0007;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-weight: 900;
+      font-size: 2.2rem;
+      letter-spacing: 0.01em;
+      margin: 0 0 16px 0;
+      color: #29b6f6;
+      text-shadow: 0 2px 8px #0005;
+    }
+    .desc-text {
+      text-align: center;
+      font-weight: 700;
+      color: #f0f0f0cc;
+      font-size: 1.1rem;
+      margin-bottom: 36px;
+    }
+    .img-preview-box {
+      width: 94vw;
+      max-width: 320px;
+      height: 200px;
+      background: #232739;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 16px #0003;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2.5px dashed #444b62;
+      position: relative;
+      overflow: hidden;
+    }
+    .img-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      display: none;
+    }
+    .img-placeholder {
+      color: #bbb;
+      font-size: 1.07rem;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+      letter-spacing: 0.02em;
+      display: block;
+    }
+    .upload-btn {
+      width: 90vw;
+      max-width: 280px;
+      background: linear-gradient(90deg, #29b6f6 60%, #039be5 100%);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 0;
+      margin: 12px 0 24px 0;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #0007;
+      transition: background 0.18s, transform 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .upload-btn:active {
+      background: #0481bd;
+      transform: scale(0.96);
+    }
+    .file-input {
+      display: none;
+    }
+    .loading-msg {
+      color: #fff;
+      font-weight: 900;
+      background: #111c;
+      font-size: 1.12rem;
+      padding: 0.8em 1.2em;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 20px;
+      margin-top: 14px;
+      width: 93vw;
+      max-width: 270px;
+      letter-spacing: 0.01em;
+      display: none;
+    }
+    .note {
+      font-size: 0.97rem;
+      text-align: center;
+      color: #f7d85a;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 420px) {
+      .container {
+        padding: 11px 2vw 0 2vw;
+        min-height: 98vh;
+      }
+      .img-preview-box {
+        width: 98vw;
+        max-width: 98vw;
+        height: 170px;
+      }
+      .upload-btn {
+        width: 96vw;
+        font-size: 1.08rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Upload Ad Image</h1>
+    <div class="desc-text">
+      <span>Replace <b>Slot 4</b> image in your slideshow.<br>
+      Take or choose a new image and upload it!</span>
+    </div>
+    <div class="img-preview-box" id="imgPreviewBox">
+      <span class="img-placeholder" id="imgPlaceholder">No Image Selected</span>
+      <img id="imgPreview" alt="Image Preview" />
+    </div>
+    <button class="upload-btn" id="selectBtn"><b>Choose Image</b></button>
+    <input type="file" class="file-input" id="fileInput" accept="image/*" capture="environment">
+    <button class="upload-btn" id="uploadBtn" style="background: #22c55e; display:none;"><b>Upload & Go</b></button>
+    <div class="loading-msg" id="loadingMsg">Uploading...</div>
+    <div class="note">Recommended: Landscape, clear, <b>under 3MB</b></div>
+  </div>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script>
+    // Firebase config (!!! use the storageBucket that works in your working code !!!)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZsj-cL_T_BuLtAz5bkqsw-edZXnumwe0",
+      authDomain: "iot-web-58054.firebaseapp.com",
+      databaseURL: "https://iot-web-58054-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "iot-web-58054",
+      storageBucket: "iot-web-58054.firebasestorage.app", // This is the one that works with your working code
+      messagingSenderId: "949884902967",
+      appId: "1:949884902967:web:6e7f78c7cd0fa1484629b2",
+      measurementId: "G-5C79490N66"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const folder = "ads-image";
+    const slot = "2"; // Always slot 4
+    let fileKey = null;
+    let selectedFile = null;
+    let extList = ['.jpg', '.png', '.jpeg', '.webp'];
+
+    // UI elements
+    const fileInput = document.getElementById('fileInput');
+    const selectBtn = document.getElementById('selectBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const imgPreview = document.getElementById('imgPreview');
+    const imgPlaceholder = document.getElementById('imgPlaceholder');
+    const loadingMsg = document.getElementById('loadingMsg');
+
+    // --- ADAPTED FROM YOUR WORKING CODE: CHECK CURRENT FILE FOR EXTENSION ---
+    function getSlot4FileKey() {
+      const storageRef = firebase.storage().ref(folder);
+      return storageRef.listAll().then(res => {
+        let found = null;
+        for (const ext of extList) {
+          if (res.items.map(i=>i.name).includes(slot+ext)) {
+            found = slot+ext;
+            break;
+          }
+        }
+        // fallback to .jpg
+        return found || (slot + ".jpg");
+      });
+    }
+
+    // --- UI LOGIC ---
+    selectBtn.onclick = () => {
+      fileInput.value = '';
+      fileInput.click();
+    };
+
+    fileInput.onchange = (e) => {
+      if (!e.target.files.length) return;
+      selectedFile = e.target.files[0];
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        imgPreview.src = ev.target.result;
+        imgPreview.style.display = 'block';
+        imgPlaceholder.style.display = 'none';
+      };
+      reader.readAsDataURL(selectedFile);
+
+      uploadBtn.style.display = "block";
+    };
+
+    uploadBtn.onclick = () => {
+      if (!selectedFile) return;
+      if (selectedFile.size > 3 * 1024 * 1024) { // 3MB
+        alert("File size must be under 3MB!");
+        return;
+      }
+      loadingMsg.textContent = "Uploading...";
+      loadingMsg.style.display = "block";
+      uploadBtn.disabled = true;
+      selectBtn.disabled = true;
+
+      // Use the same logic as your working code: find/calculate fileKey first
+      getSlot4FileKey().then(currentKey => {
+        // Keep extension of uploaded file if possible
+        let ext = ".jpg";
+        if (selectedFile.name.match(/\.(jpe?g|png|webp)$/i)) {
+          ext = "." + selectedFile.name.split('.').pop().toLowerCase();
+        }
+        // If fileKey existed, use its extension; else, use the new file's extension
+        fileKey = currentKey ? (slot + currentKey.slice(slot.length)) : (slot + ext);
+
+        const storageRef = firebase.storage().ref(`${folder}/${fileKey}`);
+        return storageRef.put(selectedFile).then(snapshot => {
+          return storageRef.getDownloadURL();
+        });
+      }).then(url => {
+        loadingMsg.textContent = "Success! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "ads.html";
+        }, 900);
+      }).catch(err => {
+        loadingMsg.style.display = "none";
+        uploadBtn.disabled = false;
+        selectBtn.disabled = false;
+        alert("Failed to upload: " + err.message);
+      });
+    };
+  </script>
+</body>
+</html>
